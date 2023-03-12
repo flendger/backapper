@@ -1,12 +1,7 @@
 [
   {
     "name": "app1",
-    "filepath": "path1",
-    "arcdir": "dir1"
-  },
-  {
-    "name": "app2",
-    "filepath": "path2",
-    "arcdir": "dir2"
+    "filepath": "/Users/flendger/GoProjects/backapper/test_data/test.txt",
+    "arcdir": "/Users/flendger/GoProjects/backapper/test_data/archive"
   }
 ]
