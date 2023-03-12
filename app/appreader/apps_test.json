@@ -1,0 +1,12 @@
+[
+  {
+    "name": "app1",
+    "filepath": "path1",
+    "arcdir": "dir1"
+  },
+  {
+    "name": "app2",
+    "filepath": "path2",
+    "arcdir": "dir2"
+  }
+]

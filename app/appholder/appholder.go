@@ -13,6 +13,7 @@ type AppHolder struct {
 
 func New(apps ...*app.App) *AppHolder {
 	h := new(AppHolder)
+	h.apps = map[string]*app.App{}
 
 	for _, a := range apps {
 		h.apps[a.Name] = a
@@ -21,7 +22,7 @@ func New(apps ...*app.App) *AppHolder {
 	return h
 }
 
-func (h *AppHolder) getApp(name string) (*app.App, error) {
+func (h *AppHolder) GetApp(name string) (*app.App, error) {
 	h.m.Lock()
 	defer h.m.Unlock()
 
