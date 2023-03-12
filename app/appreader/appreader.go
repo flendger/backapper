@@ -8,11 +8,11 @@ import (
 	"os"
 )
 
-func read(configFile string) *appholder.AppHolder {
+func Read(configFile string) *appholder.AppHolder {
 
 	bytes, err := os.ReadFile(configFile)
 	if err != nil {
-		log.Println("Couldn't read config:", configFile)
+		log.Println("Couldn't Read config:", configFile)
 		return appholder.New()
 	}
 
