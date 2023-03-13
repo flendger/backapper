@@ -3,7 +3,6 @@ package appservice
 import (
 	"backapper/app/appholder"
 	"backapper/app/appservice/fnameresolver"
-	"errors"
 	"io"
 	"log"
 	"os"
@@ -36,11 +35,9 @@ func (s *AppService) BackUp(appName string) (string, error) {
 	}
 
 	arcDir := app.ArcDir
-	if _, errDir := os.Stat(arcDir); errors.Is(errDir, os.ErrNotExist) {
-		err := os.Mkdir(arcDir, os.ModeDir)
-		if err != nil {
-			return "", err
-		}
+	errDir := os.MkdirAll(arcDir, os.ModePerm)
+	if errDir != nil {
+		return "", errDir
 	}
 
 	distPath := fnameresolver.Resolve(app, fileInfo.Name(), fileInfo.ModTime())
@@ -66,6 +63,33 @@ func (s *AppService) BackUp(appName string) (string, error) {
 	}
 
 	return distPath, nil
+}
+
+func (s *AppService) Deploy(appName string, newFile io.Reader) (string, error) {
+	app, err := s.holder.GetApp(appName)
+	if err != nil {
+		return "", err
+	}
+
+	filePath := app.FilePath
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Println("Couldn't close file during deploying:", filePath)
+		}
+	}(file)
+
+	_, errCopy := io.Copy(file, newFile)
+	if errCopy != nil {
+		return "", err
+	}
+
+	return filePath, nil
 }
 
 func New(holder *appholder.AppHolder) *AppService {
