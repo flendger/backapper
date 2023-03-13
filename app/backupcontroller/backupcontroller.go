@@ -26,7 +26,7 @@ func (c *BackupController) ServeHTTP(response http.ResponseWriter, request *http
 		return
 	}
 
-	info := "OK: " + backUp
+	info := "OK backup: " + backUp
 	writeResponse(info, response)
 }
 
@@ -39,5 +39,9 @@ func writeResponse(info string, response http.ResponseWriter) {
 }
 
 func New(service *appservice.AppService) *BackupController {
-	return &BackupController{service: service}
+	controller := &BackupController{service: service}
+
+	http.Handle("/backup", controller)
+
+	return controller
 }
