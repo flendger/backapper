@@ -6,6 +6,7 @@ import (
 	"backapper/backupcontroller"
 	"backapper/config"
 	"backapper/deploycontroller"
+	"backapper/restartcontroller"
 	"log"
 	"net/http"
 )
@@ -20,6 +21,7 @@ func main() {
 
 	backupcontroller.New(service)
 	deploycontroller.New(service)
+	restartcontroller.New(service)
 
 	err := http.ListenAndServe(":"+configuration.Port, nil)
 	if err != nil {

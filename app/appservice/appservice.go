@@ -1,11 +1,13 @@
 package appservice
 
 import (
+	"backapper/app"
 	"backapper/app/appholder"
 	"backapper/app/appservice/fnameresolver"
 	"io"
 	"log"
 	"os"
+	"os/exec"
 )
 
 type AppService struct {
@@ -13,12 +15,12 @@ type AppService struct {
 }
 
 func (s *AppService) BackUp(appName string) (string, error) {
-	app, err := s.holder.GetApp(appName)
+	curApp, err := s.getApp(appName)
 	if err != nil {
 		return "", err
 	}
 
-	source, err := os.Open(app.FilePath)
+	source, err := os.Open(curApp.FilePath)
 	if err != nil {
 		return "", err
 	}
@@ -34,13 +36,13 @@ func (s *AppService) BackUp(appName string) (string, error) {
 		return "", err
 	}
 
-	arcDir := app.ArcDir
+	arcDir := curApp.ArcDir
 	errDir := os.MkdirAll(arcDir, os.ModePerm)
 	if errDir != nil {
 		return "", errDir
 	}
 
-	distPath := fnameresolver.Resolve(app, fileInfo.Name(), fileInfo.ModTime())
+	distPath := fnameresolver.Resolve(curApp, fileInfo.Name(), fileInfo.ModTime())
 	distFile, err := os.Create(distPath)
 	if err != nil {
 		return "", err
@@ -66,12 +68,12 @@ func (s *AppService) BackUp(appName string) (string, error) {
 }
 
 func (s *AppService) Deploy(appName string, newFile io.Reader) (string, error) {
-	app, err := s.holder.GetApp(appName)
+	curApp, err := s.getApp(appName)
 	if err != nil {
 		return "", err
 	}
 
-	filePath := app.FilePath
+	filePath := curApp.FilePath
 
 	file, err := os.Create(filePath)
 	if err != nil {
@@ -92,6 +94,29 @@ func (s *AppService) Deploy(appName string, newFile io.Reader) (string, error) {
 	return filePath, nil
 }
 
+func (s *AppService) Restart(appName string) error {
+	curApp, err := s.getApp(appName)
+	if err != nil {
+		return err
+	}
+
+	errRun := exec.Command("sh", "-c", curApp.Restart).Run()
+	if errRun != nil {
+		return errRun
+	}
+
+	return nil
+}
+
 func New(holder *appholder.AppHolder) *AppService {
 	return &AppService{holder: holder}
+}
+
+func (s *AppService) getApp(appName string) (*app.App, error) {
+	app, err := s.holder.GetApp(appName)
+	if err != nil {
+		return nil, err
+	}
+
+	return app, nil
 }
