@@ -3,6 +3,6 @@
     "name": "app1",
     "filepath": "./test_data/test.txt",
     "arcdir": "./test_data/archive",
-    "restart": "touch hello.txt"
+    "restart": "./test_data/test.sh"
   }
 ]
