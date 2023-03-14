@@ -8,18 +8,18 @@ import (
 	"os"
 )
 
-func Read(configFile string) *appholder.AppHolder {
+func Read(configFile string, logger *log.Logger) *appholder.AppHolder {
 
 	bytes, err := os.ReadFile(configFile)
 	if err != nil {
-		log.Println("Couldn't Read config:", configFile)
+		logger.Println("Couldn't Read config:", configFile)
 		return appholder.New()
 	}
 
 	var apps []*app.App
 	errJson := json.Unmarshal(bytes, &apps)
 	if errJson != nil {
-		log.Println("Couldn't parse config:", configFile)
+		logger.Println("Couldn't parse config:", configFile)
 		return appholder.New()
 	}
 

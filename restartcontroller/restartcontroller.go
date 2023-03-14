@@ -8,6 +8,7 @@ import (
 
 type RestartController struct {
 	service *appservice.AppService
+	logger  *log.Logger
 }
 
 func (c *RestartController) ServeHTTP(response http.ResponseWriter, request *http.Request) {
@@ -15,7 +16,7 @@ func (c *RestartController) ServeHTTP(response http.ResponseWriter, request *htt
 	appParams, exists := query["app"]
 	if !exists {
 		info := "Bad request: no app param"
-		writeResponse(info, response)
+		c.writeResponse(info, response)
 		return
 	}
 
@@ -23,23 +24,23 @@ func (c *RestartController) ServeHTTP(response http.ResponseWriter, request *htt
 	err := c.service.Restart(appName)
 	if err != nil {
 		info := "Couldn't restart app [" + appName + "]: " + err.Error()
-		writeResponse(info, response)
+		c.writeResponse(info, response)
 		return
 	}
 
-	writeResponse("OK restart: "+appName, response)
+	c.writeResponse("OK restart: "+appName, response)
 }
 
-func New(service *appservice.AppService) *RestartController {
-	controller := &RestartController{service: service}
+func New(service *appservice.AppService, logger *log.Logger) *RestartController {
+	controller := &RestartController{service: service, logger: logger}
 
 	http.Handle("/restart", controller)
 
 	return controller
 }
 
-func writeResponse(info string, response http.ResponseWriter) {
-	log.Println(info)
+func (c *RestartController) writeResponse(info string, response http.ResponseWriter) {
+	c.logger.Println(info)
 	_, err := response.Write([]byte(info))
 	if err != nil {
 		return

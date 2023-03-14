@@ -8,7 +8,7 @@ import (
 const configFile = "apps_test.json"
 
 func TestReader(t *testing.T) {
-	holder := Read(configFile)
+	holder := Read(configFile, nil)
 
 	checkApp("app1", "path1", "dir1", holder, t)
 	checkApp("app2", "path2", "dir2", holder, t)

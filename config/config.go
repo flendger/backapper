@@ -11,21 +11,21 @@ type Configuration struct {
 	AppConfigPath string `json:"app_config"`
 }
 
-func Load(confFilePath string) *Configuration {
+func Load(confFilePath string, logger *log.Logger) *Configuration {
 	fileData, err := os.ReadFile(confFilePath)
 	if err != nil {
-		log.Println("Couldn't read configuration: use default instead", err)
+		logger.Println("Couldn't read configuration: use default instead", err)
 		return defConf()
 	}
 
 	var config Configuration
 	errJson := json.Unmarshal(fileData, &config)
 	if errJson != nil {
-		log.Println("Couldn't decode configuration: use default instead", errJson)
+		logger.Println("Couldn't decode configuration: use default instead", errJson)
 		return defConf()
 	}
 
-	log.Println("Configuration:", config)
+	logger.Println("Configuration:", config)
 
 	return &config
 }

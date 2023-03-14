@@ -8,11 +8,12 @@ import (
 
 type DeployController struct {
 	service *appservice.AppService
+	logger  *log.Logger
 }
 
-func (d *DeployController) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+func (c *DeployController) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	if request.Method != "POST" {
-		writeResponse("Method not allowed", response)
+		c.writeResponse("Method not allowed", response)
 		return
 	}
 
@@ -20,7 +21,7 @@ func (d *DeployController) ServeHTTP(response http.ResponseWriter, request *http
 	appParams, exists := query["app"]
 	if !exists {
 		info := "Bad request: no app param"
-		writeResponse(info, response)
+		c.writeResponse(info, response)
 		return
 	}
 
@@ -29,26 +30,26 @@ func (d *DeployController) ServeHTTP(response http.ResponseWriter, request *http
 		return
 	}
 
-	distInfo, err := d.service.Deploy(appParams[0], newFile)
+	distInfo, err := c.service.Deploy(appParams[0], newFile)
 	if err != nil {
 		errInfo := "Back error: " + err.Error()
-		writeResponse(errInfo, response)
+		c.writeResponse(errInfo, response)
 		return
 	}
 
-	writeResponse("OK deploy: "+distInfo, response)
+	c.writeResponse("OK deploy: "+distInfo, response)
 }
 
-func New(service *appservice.AppService) *DeployController {
-	controller := &DeployController{service: service}
+func New(service *appservice.AppService, logger *log.Logger) *DeployController {
+	controller := &DeployController{service: service, logger: logger}
 
 	http.Handle("/deploy", controller)
 
 	return controller
 }
 
-func writeResponse(info string, response http.ResponseWriter) {
-	log.Println(info)
+func (c *DeployController) writeResponse(info string, response http.ResponseWriter) {
+	c.logger.Println(info)
 	_, err := response.Write([]byte(info))
 	if err != nil {
 		return

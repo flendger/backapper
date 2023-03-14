@@ -12,6 +12,7 @@ import (
 
 type AppService struct {
 	holder *appholder.AppHolder
+	logger *log.Logger
 }
 
 func (s *AppService) BackUp(appName string) (string, error) {
@@ -27,7 +28,7 @@ func (s *AppService) BackUp(appName string) (string, error) {
 	defer func(source *os.File) {
 		err := source.Close()
 		if err != nil {
-			log.Println(err)
+			s.logger.Println(err)
 		}
 	}(source)
 
@@ -50,7 +51,7 @@ func (s *AppService) BackUp(appName string) (string, error) {
 	defer func(distFile *os.File) {
 		err := distFile.Close()
 		if err != nil {
-			log.Println(err)
+			s.logger.Println(err)
 		}
 	}(distFile)
 
@@ -82,7 +83,7 @@ func (s *AppService) Deploy(appName string, newFile io.Reader) (string, error) {
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			log.Println("Couldn't close file during deploying:", filePath)
+			s.logger.Println("Couldn't close file during deploying:", filePath)
 		}
 	}(file)
 
@@ -108,15 +109,15 @@ func (s *AppService) Restart(appName string) error {
 	return nil
 }
 
-func New(holder *appholder.AppHolder) *AppService {
-	return &AppService{holder: holder}
+func New(holder *appholder.AppHolder, logger *log.Logger) *AppService {
+	return &AppService{holder: holder, logger: logger}
 }
 
 func (s *AppService) getApp(appName string) (*app.App, error) {
-	app, err := s.holder.GetApp(appName)
+	getApp, err := s.holder.GetApp(appName)
 	if err != nil {
 		return nil, err
 	}
 
-	return app, nil
+	return getApp, nil
 }
