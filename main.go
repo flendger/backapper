@@ -3,9 +3,9 @@ package main
 import (
 	"backapper/app/appreader"
 	"backapper/app/appservice"
-	"backapper/app/backupcontroller"
-	"backapper/app/deploycontroller"
+	"backapper/backupcontroller"
 	"backapper/config"
+	"backapper/deploycontroller"
 	"log"
 	"net/http"
 )
