@@ -2,6 +2,7 @@
   {
     "name": "app1",
     "filepath": "/Users/flendger/GoProjects/backapper/test_data/test.txt",
-    "arcdir": "/Users/flendger/GoProjects/backapper/test_data/archive"
+    "arcdir": "/Users/flendger/GoProjects/backapper/test_data/archive",
+    "restart": "echo Hello Restart"
   }
 ]
