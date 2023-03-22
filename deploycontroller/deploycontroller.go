@@ -13,16 +13,11 @@ type DeployController struct {
 }
 
 func (c *DeployController) Handle(context *gin.Context) {
-	c.Info(http.StatusOK, "Starting deploy...\n", context)
-
 	appName := context.Query("app")
 	if appName == "" {
 		context.String(http.StatusBadRequest, "Bad request: no App param\n")
 		return
 	}
-
-	msgStart := "Upload starting... \n"
-	c.Info(http.StatusOK, msgStart, context)
 
 	newFile, _, err := context.Request.FormFile("file")
 	if err != nil {
