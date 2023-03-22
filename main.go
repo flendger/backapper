@@ -28,7 +28,7 @@ func init() {
 }
 
 func main() {
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = appLogger.Writer()
 
 	configuration := config.Load(configPath, appLogger)
@@ -42,7 +42,7 @@ func main() {
 	engine.POST("/deploy", deploycontroller.New(service).Handle)
 	engine.GET("/restart", restartcontroller.New(service).Handle)
 
-	err := engine.Run()
+	err := engine.Run(":" + configuration.Port)
 	if err != nil {
 		appLogger.Fatal(err)
 	}
