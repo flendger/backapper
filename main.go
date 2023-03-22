@@ -7,9 +7,9 @@ import (
 	"backapper/config"
 	"backapper/deploycontroller"
 	"backapper/restartcontroller"
+	"github.com/gin-gonic/gin"
 	"io"
 	"log"
-	"net/http"
 	"os"
 )
 
@@ -28,16 +28,21 @@ func init() {
 }
 
 func main() {
+	//gin.SetMode(gin.ReleaseMode)
+	gin.DefaultWriter = appLogger.Writer()
+
 	configuration := config.Load(configPath, appLogger)
 
 	appHolder := appreader.Read(configuration.AppConfigPath, appLogger)
 	service := appservice.New(appHolder, appLogger)
 
-	backupcontroller.New(service, appLogger)
-	deploycontroller.New(service, appLogger)
-	restartcontroller.New(service, appLogger)
+	engine := gin.Default()
 
-	err := http.ListenAndServe(":"+configuration.Port, nil)
+	engine.GET("/backup", backupcontroller.New(service).Handle)
+	engine.POST("/deploy", deploycontroller.New(service).Handle)
+	engine.GET("/restart", restartcontroller.New(service).Handle)
+
+	err := engine.Run()
 	if err != nil {
 		appLogger.Fatal(err)
 	}

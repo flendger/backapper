@@ -2,47 +2,35 @@ package backupcontroller
 
 import (
 	"backapper/app/appservice"
-	"log"
+	"backapper/basecontroller"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type BackupController struct {
+	*basecontroller.BaseController
 	service *appservice.AppService
-	logger  *log.Logger
 }
 
-func (c *BackupController) ServeHTTP(response http.ResponseWriter, request *http.Request) {
-	query := request.URL.Query()
-	appName, exists := query["app"]
-	if !exists {
-		info := "Bad request: no app param"
-		c.writeResponse(info, response)
+func (c *BackupController) Handle(context *gin.Context) {
+	c.Info(http.StatusOK, "Starting backup...\n", context)
+
+	appName := context.Query("app")
+	if appName == "" {
+		c.Info(http.StatusBadRequest, "Bad request: no App param\n", context)
 		return
 	}
 
-	backUp, err := c.service.BackUp(appName[0])
+	backUp, err := c.service.BackUp(appName)
 	if err != nil {
-		errInfo := "Back error: " + err.Error()
-		c.writeResponse(errInfo, response)
+		errInfo := "Backup error: " + err.Error() + "\n"
+		c.Info(http.StatusBadRequest, errInfo, context)
 		return
 	}
 
-	info := "OK backup: " + backUp
-	c.writeResponse(info, response)
+	c.Info(http.StatusOK, "OK backup: "+backUp+"\n", context)
 }
 
-func (c *BackupController) writeResponse(info string, response http.ResponseWriter) {
-	c.logger.Println(info)
-	_, err := response.Write([]byte(info))
-	if err != nil {
-		return
-	}
-}
-
-func New(service *appservice.AppService, logger *log.Logger) *BackupController {
-	controller := &BackupController{service: service, logger: logger}
-
-	http.Handle("/backup", controller)
-
-	return controller
+func New(service *appservice.AppService) *BackupController {
+	return &BackupController{service: service}
 }

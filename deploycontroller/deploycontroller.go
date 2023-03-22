@@ -2,56 +2,46 @@ package deploycontroller
 
 import (
 	"backapper/app/appservice"
-	"log"
+	"backapper/basecontroller"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type DeployController struct {
+	*basecontroller.BaseController
 	service *appservice.AppService
-	logger  *log.Logger
 }
 
-func (c *DeployController) ServeHTTP(response http.ResponseWriter, request *http.Request) {
-	if request.Method != "POST" {
-		c.writeResponse("Method not allowed", response)
+func (c *DeployController) Handle(context *gin.Context) {
+	c.Info(http.StatusOK, "Starting deploy...\n", context)
+
+	appName := context.Query("app")
+	if appName == "" {
+		context.String(http.StatusBadRequest, "Bad request: no App param\n")
 		return
 	}
 
-	query := request.URL.Query()
-	appParams, exists := query["app"]
-	if !exists {
-		info := "Bad request: no app param"
-		c.writeResponse(info, response)
-		return
-	}
+	msgStart := "Upload starting... \n"
+	c.Info(http.StatusOK, msgStart, context)
 
-	newFile, _, err := request.FormFile("file")
+	newFile, _, err := context.Request.FormFile("file")
 	if err != nil {
+		errInfo := "Deploy error cause couldn't get file: " + err.Error() + "\n"
+		c.Info(http.StatusBadRequest, errInfo, context)
 		return
 	}
 
-	distInfo, err := c.service.Deploy(appParams[0], newFile)
+	distInfo, err := c.service.Deploy(appName, newFile)
 	if err != nil {
-		errInfo := "Back error: " + err.Error()
-		c.writeResponse(errInfo, response)
+		errInfo := "Deploy error cause couldn't save file: " + err.Error() + "\n"
+		c.Info(http.StatusBadRequest, errInfo, context)
 		return
 	}
 
-	c.writeResponse("OK deploy: "+distInfo, response)
+	msgInfo := "Deploy completed: " + distInfo + "\n"
+	c.Info(http.StatusOK, msgInfo, context)
 }
 
-func New(service *appservice.AppService, logger *log.Logger) *DeployController {
-	controller := &DeployController{service: service, logger: logger}
-
-	http.Handle("/deploy", controller)
-
-	return controller
-}
-
-func (c *DeployController) writeResponse(info string, response http.ResponseWriter) {
-	c.logger.Println(info)
-	_, err := response.Write([]byte(info))
-	if err != nil {
-		return
-	}
+func New(service *appservice.AppService) *DeployController {
+	return &DeployController{service: service}
 }

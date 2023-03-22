@@ -2,47 +2,35 @@ package restartcontroller
 
 import (
 	"backapper/app/appservice"
-	"log"
+	"backapper/basecontroller"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type RestartController struct {
+	*basecontroller.BaseController
 	service *appservice.AppService
-	logger  *log.Logger
 }
 
-func (c *RestartController) ServeHTTP(response http.ResponseWriter, request *http.Request) {
-	query := request.URL.Query()
-	appParams, exists := query["app"]
-	if !exists {
-		info := "Bad request: no app param"
-		c.writeResponse(info, response)
+func (c *RestartController) Handle(context *gin.Context) {
+	c.Info(http.StatusOK, "Starting restart...\n", context)
+
+	appName := context.Query("app")
+	if appName == "" {
+		context.String(http.StatusBadRequest, "Bad request: no App param\n")
 		return
 	}
 
-	appName := appParams[0]
 	err := c.service.Restart(appName)
 	if err != nil {
-		info := "Couldn't restart app [" + appName + "]: " + err.Error()
-		c.writeResponse(info, response)
+		info := "Couldn't restart app [" + appName + "]: " + err.Error() + "\n"
+		c.Info(http.StatusBadRequest, info, context)
 		return
 	}
 
-	c.writeResponse("OK restart: "+appName, response)
+	c.Info(http.StatusOK, "OK restart: "+appName+"\n", context)
 }
 
-func New(service *appservice.AppService, logger *log.Logger) *RestartController {
-	controller := &RestartController{service: service, logger: logger}
-
-	http.Handle("/restart", controller)
-
-	return controller
-}
-
-func (c *RestartController) writeResponse(info string, response http.ResponseWriter) {
-	c.logger.Println(info)
-	_, err := response.Write([]byte(info))
-	if err != nil {
-		return
-	}
+func New(service *appservice.AppService) *RestartController {
+	return &RestartController{service: service}
 }
