@@ -95,18 +95,19 @@ func (s *AppService) Deploy(appName string, newFile io.Reader) (string, error) {
 	return filePath, nil
 }
 
-func (s *AppService) Restart(appName string) error {
+func (s *AppService) Restart(appName string) (string, error) {
 	curApp, err := s.getApp(appName)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	errRun := exec.Command("sh", "-c", curApp.Restart).Run()
-	if errRun != nil {
-		return errRun
+	cmd := exec.Command("sh", "-c", curApp.Restart)
+	output, err := cmd.Output()
+	if err != nil {
+		return "", err
 	}
 
-	return nil
+	return string(output), nil
 }
 
 func New(holder *appholder.AppHolder, logger *log.Logger) *AppService {

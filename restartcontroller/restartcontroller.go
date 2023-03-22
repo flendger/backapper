@@ -17,17 +17,18 @@ func (c *RestartController) Handle(context *gin.Context) {
 
 	appName := context.Query("app")
 	if appName == "" {
-		context.String(http.StatusBadRequest, "Bad request: no App param\n")
+		context.String(http.StatusOK, "Bad request: no App param\n")
 		return
 	}
 
-	err := c.service.Restart(appName)
+	output, err := c.service.Restart(appName)
 	if err != nil {
 		info := "Couldn't restart app [" + appName + "]: " + err.Error() + "\n"
-		c.Info(http.StatusBadRequest, info, context)
+		c.Info(http.StatusOK, info, context)
 		return
 	}
 
+	c.Info(http.StatusOK, output+"\n", context)
 	c.Info(http.StatusOK, "OK restart: "+appName+"\n", context)
 }
 
