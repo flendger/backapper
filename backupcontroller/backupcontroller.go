@@ -13,13 +13,13 @@ type BackupController struct {
 }
 
 func (c *BackupController) Handle(context *gin.Context) {
-	c.Info(http.StatusOK, "Starting backup...\n", context)
-
 	appName := context.Query("app")
 	if appName == "" {
 		c.Info(http.StatusBadRequest, "Bad request: no App param\n", context)
 		return
 	}
+
+	c.Info(http.StatusOK, "Starting backup "+appName+"...\n", context)
 
 	backUp, err := c.service.BackUp(appName)
 	if err != nil {

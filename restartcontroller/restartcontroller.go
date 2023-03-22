@@ -13,13 +13,13 @@ type RestartController struct {
 }
 
 func (c *RestartController) Handle(context *gin.Context) {
-	c.Info(http.StatusOK, "Starting restart...\n", context)
-
 	appName := context.Query("app")
 	if appName == "" {
 		context.String(http.StatusOK, "Bad request: no App param\n")
 		return
 	}
+
+	c.Info(http.StatusOK, "Starting restart "+appName+"...\n", context)
 
 	output, err := c.service.Restart(appName)
 	if err != nil {
