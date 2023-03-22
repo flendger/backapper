@@ -28,7 +28,7 @@ func (h *AppHolder) GetApp(name string) (*app.App, error) {
 
 	a, exists := h.apps[name]
 	if !exists {
-		return nil, errors.New("app doesn't exist")
+		return nil, errors.New("app [" + name + "] doesn't exist")
 	}
 
 	return a, nil
