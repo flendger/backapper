@@ -14,6 +14,7 @@ import (
 )
 
 const configPath = "backapper.cfg"
+const version = "1.1.1"
 
 var appLogger *log.Logger
 
@@ -21,6 +22,7 @@ func init() {
 	file, err := os.OpenFile("backapper.log", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
 	if err != nil {
 		appLogger = log.Default()
+		log.SetOutput(os.Stdout)
 		return
 	}
 
@@ -28,6 +30,9 @@ func init() {
 }
 
 func main() {
+
+	appLogger.Println("Backapper starting (v " + version + ")")
+
 	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = appLogger.Writer()
 
