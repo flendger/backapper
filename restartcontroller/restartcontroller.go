@@ -24,7 +24,7 @@ func (c *RestartController) Handle(context *gin.Context) {
 	output, err := c.service.Restart(appName)
 	if err != nil {
 		info := "Couldn't restart app [" + appName + "]: " + err.Error() + "\n"
-		c.Info(http.StatusOK, info, context)
+		c.Info(http.StatusBadRequest, info, context)
 		return
 	}
 
