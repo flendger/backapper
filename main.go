@@ -14,7 +14,7 @@ import (
 )
 
 const configPath = "backapper.cfg"
-const version = "1.1.1"
+const version = "1.1.2"
 
 var appLogger *log.Logger
 
