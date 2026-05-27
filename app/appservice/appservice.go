@@ -114,6 +114,28 @@ func (s *AppService) Restart(appName string) (string, error) {
 	return string(output), nil
 }
 
+func (s *AppService) HealthCheck(appName string) (string, error) {
+	curApp, err := s.getApp(appName)
+	if err != nil {
+		return "", err
+	}
+
+	if curApp.HealthCheck == "" {
+		return "", fmt.Errorf("healthcheck not configured for app [%s]", appName)
+	}
+
+	cmd := exec.Command("sh", "-c", curApp.HealthCheck)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		if len(output) > 0 {
+			return "", fmt.Errorf("%s: %w", string(output), err)
+		}
+		return "", err
+	}
+
+	return string(output), nil
+}
+
 func New(holder *appholder.AppHolder, logger *log.Logger) *AppService {
 	return &AppService{holder: holder, logger: logger}
 }

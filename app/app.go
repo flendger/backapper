@@ -1,8 +1,9 @@
 package app
 
 type App struct {
-	Name     string
-	FilePath string
-	ArcDir   string
-	Restart  string
+	Name        string
+	FilePath    string
+	ArcDir      string
+	Restart     string
+	HealthCheck string
 }

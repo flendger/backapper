@@ -27,4 +27,8 @@ func checkApp(appName, appPath, appDir string, holder *appholder.AppHolder, t *t
 	if app1.ArcDir != appDir {
 		t.Errorf("Dir incorrect: %s wants %s", app1.ArcDir, appDir)
 	}
+
+	if app1.HealthCheck != "" {
+		t.Errorf("HealthCheck should be empty when not configured: got %q", app1.HealthCheck)
+	}
 }

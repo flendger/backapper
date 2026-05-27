@@ -3,6 +3,7 @@
     "name": "app1",
     "filepath": "./test_data/test.txt",
     "arcdir": "./test_data/archive",
-    "restart": "./test_data/test.sh"
+    "restart": "./test_data/test.sh",
+    "healthcheck": "curl -sf --max-time 5 http://127.0.0.1:8080/actuator/health"
   }
 ]

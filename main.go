@@ -6,6 +6,7 @@ import (
 	"backapper/backupcontroller"
 	"backapper/config"
 	"backapper/deploycontroller"
+	"backapper/healthcheckcontroller"
 	"backapper/restartcontroller"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -46,6 +47,7 @@ func main() {
 	engine.GET("/backup", backupcontroller.New(service).Handle)
 	engine.POST("/deploy", deploycontroller.New(service).Handle)
 	engine.GET("/restart", restartcontroller.New(service).Handle)
+	engine.GET("/healthcheck", healthcheckcontroller.New(service).Handle)
 
 	err := engine.Run(":" + configuration.Port)
 	if err != nil {
