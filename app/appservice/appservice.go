@@ -4,6 +4,7 @@ import (
 	"backapper/app"
 	"backapper/app/appholder"
 	"backapper/app/appservice/fnameresolver"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -102,8 +103,11 @@ func (s *AppService) Restart(appName string) (string, error) {
 	}
 
 	cmd := exec.Command("sh", "-c", curApp.Restart)
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
+		if len(output) > 0 {
+			return "", fmt.Errorf("%s: %w", string(output), err)
+		}
 		return "", err
 	}
 

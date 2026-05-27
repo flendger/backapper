@@ -3,8 +3,10 @@ package restartcontroller
 import (
 	"backapper/app/appservice"
 	"backapper/basecontroller"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os/exec"
 )
 
 type RestartController struct {
@@ -19,17 +21,19 @@ func (c *RestartController) Handle(context *gin.Context) {
 		return
 	}
 
-	c.Info(http.StatusOK, "Starting restart "+appName+"...\n", context)
-
 	output, err := c.service.Restart(appName)
 	if err != nil {
+		status := http.StatusBadRequest
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			status = http.StatusInternalServerError
+		}
 		info := "Couldn't restart app [" + appName + "]: " + err.Error() + "\n"
-		c.Info(http.StatusBadRequest, info, context)
+		c.Info(status, info, context)
 		return
 	}
 
-	c.Info(http.StatusOK, output+"\n", context)
-	c.Info(http.StatusOK, "OK restart: "+appName+"\n", context)
+	c.Info(http.StatusOK, output+"\nOK restart: "+appName+"\n", context)
 }
 
 func New(service *appservice.AppService) *RestartController {
